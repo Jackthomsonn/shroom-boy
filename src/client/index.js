@@ -1,7 +1,7 @@
 'use strict';
 import io from 'socket.io-client';
 const socket = io.connect('http://192.168.0.13:8080');
-const song = new Audio('./app/music/song_song.mp3');
+const song = new Audio('./app/music/theme_song.mp3');
 const score = new Audio('./app/music/score.mp3');
 const canvas = document.querySelector('canvas');
 const width = canvas.width = window.innerWidth;
@@ -13,20 +13,20 @@ ctx.fillStyle = '#FFF';
 let name;
 let mushroom;
 
-song.addEventListener('ended', function() {
+song.addEventListener('ended', () => {
   this.currentTime = 0;
   this.play();
 }, false);
 song.play();
 
-socket.on('connect', function() {
+socket.on('connect', () => {
   const name = prompt('What is your name?');
   socket.emit('addPlayer', {
     name: name
   });
 });
 
-socket.on('playerCount', function(data) {
+socket.on('playerCount', (data) => {
   if(data.online > 1) {
     ctx.fillText(data.online + ' players online', 20, 50);
   } else {
@@ -34,11 +34,11 @@ socket.on('playerCount', function(data) {
   }
 });
 
-socket.on('mushroomPosition', function(data) {
+socket.on('mushroomPosition', (data) => {
   mushroom = data;
 });
 
-socket.on('newPositions', function(data) {
+socket.on('newPositions', (data) => {
   ctx.clearRect(0, 0, width, height);
   const map = new Image();
   const player = new Image();
@@ -52,7 +52,7 @@ socket.on('newPositions', function(data) {
     ctx.drawImage(player, data[i].x, data[i].y, data[i].width, data[i].height);
   }
 
-  socket.on('mushroomCaught', function(data) {
+  socket.on('mushroomCaught', (data) => {
     if(data.caught) {
       score.play();
       mushroom.x = data.x;
@@ -63,7 +63,7 @@ socket.on('newPositions', function(data) {
   ctx.drawImage(mushroomImage, mushroom.x, mushroom.y, mushroom.width, mushroom.height);
 });
 
-document.onkeydown = function(event) {
+document.onkeydown = (event) => {
   switch(event.keyCode) {
   case 68 :
     socket.emit('keyPress', {
@@ -95,7 +95,7 @@ document.onkeydown = function(event) {
     break;
   }
 };
-document.onkeyup = function(event) {
+document.onkeyup = (event) => {
   switch(event.keyCode) {
   case 68 :
     socket.emit('keyPress', {

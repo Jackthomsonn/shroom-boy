@@ -8,7 +8,7 @@ const Mushroom = require('./mushroom');
 const mushroom = new Mushroom();
 
 app.use(express.static('dist'));
-app.get('/', function(req, res) {
+app.get('/', (req, res) => {
   res.sendFile(__dirname + '/dist/index.html');
 });
 
@@ -21,12 +21,12 @@ const players = {};
 
 var io = require('socket.io')(server,{});
 let online = 0;
-io.sockets.on('connection', function(socket){
+io.sockets.on('connection', (socket) => {
   const _id = socket.id;
   sockets[_id] = socket;
   let name;
   let player;
-  socket.on('addPlayer', function(data) {
+  socket.on('addPlayer', (data) => {
     ++online;
     console.log(data.name + ' just joined the game');
     console.log('Online players: ' + online);
@@ -39,7 +39,7 @@ io.sockets.on('connection', function(socket){
     players[_id] = player;
   });
 
-  socket.on('disconnect',function(){
+  socket.on('disconnect', () => {
     --online;
     console.log(players[_id].name + ' just left the game');
     console.log('Online players: ' + online);
@@ -47,7 +47,7 @@ io.sockets.on('connection', function(socket){
     delete players[_id];
   });
 
-  socket.on('keyPress',function(data){
+  socket.on('keyPress', (data) => {
     if(data.position === 'left') {
       player.left = data.state;
       player.image = data.image;
@@ -74,7 +74,7 @@ io.sockets.on('connection', function(socket){
   });
 });
 
-setInterval(function(){
+setInterval( () =>{
   const allPlayers = [];
   for(var i in players){
     const player = players[i];

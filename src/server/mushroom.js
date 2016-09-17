@@ -5,7 +5,7 @@ function Mushroom() {
     x: Math.floor(Math.random() * (1000 - 200 + 1)) + 200,
     y: Math.floor(Math.random() * (500 - 200 + 1)) + 200,
   };
-  self.respawn = function() {
+  self.respawn = () => {
     self.x = Math.floor(Math.random() * (1000 - 200 + 1)) + 200;
     self.y =  Math.floor(Math.random() * (500 - 200 + 1)) + 200;
   };

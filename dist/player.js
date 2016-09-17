@@ -13,7 +13,7 @@ function Player(id){
     score: 0,
     image: './app/images/character_up.png'
   };
-  self.updatePosition = function(){
+  self.updatePosition = () => {
     if(self.right) {
       self.x += self.maxSpd;
     }

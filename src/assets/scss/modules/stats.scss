@@ -1,0 +1,10 @@
+@mixin stats {
+  .stats {
+    position: absolute;
+    top: 0;
+    margin: 5em 1.7em;
+    font-weight: 300;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.9);
+  }
+}

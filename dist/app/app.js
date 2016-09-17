@@ -7245,107 +7245,359 @@ function toArray(list, index) {
 },{}],49:[function(require,module,exports){
 'use strict';
 
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Ambience = function () {
+  function Ambience(src, loop) {
+    _classCallCheck(this, Ambience);
+
+    this.audio = new Audio();
+    this.audio.src = src;
+    this.audio.loop = loop;
+  }
+
+  _createClass(Ambience, [{
+    key: 'play',
+    value: function play() {
+      this.audio.play();
+    }
+  }]);
+
+  return Ambience;
+}();
+
+exports.default = Ambience;
+
+},{}],50:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
 var _socket = require('socket.io-client');
 
 var _socket2 = _interopRequireDefault(_socket);
 
+var _notification = require('./notification');
+
+var _notification2 = _interopRequireDefault(_notification);
+
+var _settings = require('./settings');
+
+var _settings2 = _interopRequireDefault(_settings);
+
+var _timer = require('./timer');
+
+var _timer2 = _interopRequireDefault(_timer);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var socket = _socket2.default.connect('http://192.168.0.13:8080');
-var audio = new Audio('./app/music/theme_song.mp3');
-var canvas = document.querySelector('canvas');
-var width = canvas.width = window.innerWidth;
-var height = canvas.height = window.innerHeight;
-var ctx = canvas.getContext("2d");
-ctx.font = '20px Open Sans';
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+var notification = void 0;
+var timer = void 0;
 var name = void 0;
 
-audio.play();
+var Game = function () {
+  function Game() {
+    _classCallCheck(this, Game);
 
-socket.on('connect', function () {
-  var name = prompt('What is your name?');
-  socket.emit('addPlayer', {
-    name: name
-  });
+    this.socket = _socket2.default.connect('https://shroom-boy.herokuapp.com/');
+    this.settings = new _settings2.default();
+
+    this.start();
+  }
+
+  _createClass(Game, [{
+    key: 'start',
+    value: function start() {
+      var _this = this;
+
+      this.socket.on('connect', function () {
+        _this.settings.song.play();
+        name = prompt('What is your name?');
+        _this.socket.on('inBuffer', function (data) {
+          notification = new _notification2.default(null, '.container');
+          data.inBuffer ? notification.show() : notification.hide(!data.inBuffer);
+        });
+        _this.socket.emit('addPlayer', {
+          name: name
+        });
+        _this.socket.on('justJoined', function (data) {
+          notification = new _notification2.default(data.name + ' just joined', '.notification');
+          notification.show();
+          _this.socket.on('timeout', function (data) {
+            notification.hide(data.timeout);
+          });
+        });
+        _this.socket.on('justLeft', function (data) {
+          notification = new _notification2.default(data.name + ' just left', '.notification');
+          notification.show();
+          _this.socket.on('timeout', function (data) {
+            notification.hide(data.timeout);
+          });
+        });
+        _this.socket.on('winner', function (data) {
+          notification = new _notification2.default(data.winner + ' was victorious', '.notification');
+          notification.show();
+          _this.socket.on('newGame', function (data) {
+            notification.hide(data.newGame);
+          });
+        });
+        _this.socket.on('error', function () {
+          _this.socket = (_this.socket, {
+            'force new connection': true
+          });
+        });
+        _this.socket.on('playerCount', function (data) {
+          data.online > 1 ? _this.settings.ctx.fillText(data.online + ' players online', 20, 50) : _this.settings.ctx.fillText(data.online + ' player online', 20, 50);
+        });
+        _this.socket.on('mushroomPosition', function (data) {
+          _this.settings.mushroom = data;
+        });
+        _this.socket.on('newPositions', function (data) {
+          _this.settings.ctx.clearRect(0, 0, _this.settings.width, _this.settings.height);
+          _this.settings.ctx.drawImage(_this.settings.map, 0, 0, _this.settings.width, _this.settings.height);
+          for (var i = 0; i < data.length; i++) {
+            if (data[i].ready) {
+              _this.settings.player.src = data[i].image;
+              _this.settings.ctx.fillText(data[i].name + ' - ' + data[i].score, data[i].x - 10, data[i].y - 20);
+              _this.settings.ctx.drawImage(_this.settings.player, data[i].x, data[i].y, data[i].width, data[i].height);
+            }
+          }
+          _this.socket.on('mushroomCaught', function (data) {
+            if (data.caught) {
+              _this.settings.collected.play();
+              _this.settings.mushroom.x = data.x;
+              _this.settings.mushroom.y = data.y;
+              _this.settings.ctx.drawImage(_this.settings.mushroomImage, _this.settings.mushroom.x, _this.settings.mushroom.y, _this.settings.mushroom.width, _this.settings.mushroom.height);
+            }
+          });
+          _this.settings.ctx.drawImage(_this.settings.mushroomImage, _this.settings.mushroom.x, _this.settings.mushroom.y, _this.settings.mushroom.width, _this.settings.mushroom.height);
+        });
+        _this.socket.on('timer', function (data) {
+          timer = new _timer2.default(data.timer);
+          timer.start();
+        });
+        document.onkeydown = function (event) {
+          switch (event.keyCode) {
+            case 68:
+              _this.socket.emit('keyPress', {
+                position: 'right',
+                state: true,
+                image: '../app/images/character_right.png'
+              });
+              break;
+            case 83:
+              _this.socket.emit('keyPress', {
+                position: 'down',
+                state: true,
+                image: '../app/images/character_down.png'
+              });
+              break;
+            case 65:
+              _this.socket.emit('keyPress', {
+                position: 'left',
+                state: true,
+                image: '../app/images/character_left.png'
+              });
+              break;
+            case 87:
+              _this.socket.emit('keyPress', {
+                position: 'up',
+                state: true,
+                image: '../app/images/character_up.png'
+              });
+              break;
+          }
+        };
+        document.onkeyup = function (event) {
+          switch (event.keyCode) {
+            case 68:
+              _this.socket.emit('keyPress', {
+                position: 'right',
+                state: false,
+                image: '../app/images/character_right.png'
+              });
+              break;
+            case 83:
+              _this.socket.emit('keyPress', {
+                position: 'down',
+                state: false,
+                image: '../app/images/character_down.png'
+              });
+              break;
+            case 65:
+              _this.socket.emit('keyPress', {
+                position: 'left',
+                state: false,
+                image: '../app/images/character_left.png'
+              });
+              break;
+            case 87:
+              _this.socket.emit('keyPress', {
+                position: 'up',
+                state: false,
+                image: '../app/images/character_up.png'
+              });
+              break;
+          }
+        };
+      });
+    }
+  }]);
+
+  return Game;
+}();
+
+exports.default = Game;
+
+},{"./notification":52,"./settings":53,"./timer":54,"socket.io-client":2}],51:[function(require,module,exports){
+'use strict';
+
+var _game = require('./game');
+
+var _game2 = _interopRequireDefault(_game);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+new _game2.default();
+
+},{"./game":50}],52:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
 });
 
-socket.on('playerCount', function (data) {
-  if (data.online > 1) {
-    ctx.fillText(data.online + ' players online', 20, 50);
-  } else {
-    ctx.fillText(data.online + ' player online', 20, 50);
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Notification = function () {
+  function Notification(message, selector) {
+    _classCallCheck(this, Notification);
+
+    this.message = message;
+    this.notification = document.querySelector(selector);
+    if (this.message) {
+      this.notification.innerHTML = this.message;
+    }
   }
+
+  _createClass(Notification, [{
+    key: 'show',
+    value: function show() {
+      this.notification.style.visibility = 'visible';
+    }
+  }, {
+    key: 'hide',
+    value: function hide(data) {
+      if (data) {
+        this.notification.style.visibility = 'hidden';
+      }
+    }
+  }]);
+
+  return Notification;
+}();
+
+exports.default = Notification;
+
+},{}],53:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
 });
 
-socket.on('newPositions', function (data) {
-  ctx.clearRect(0, 0, width, height);
-  var map = new Image();
-  var player = new Image();
-  map.src = './app/images/grass.jpg';
-  player.src = './app/images/player.jpg';
-  ctx.drawImage(map, 0, 0, width, height);
-  for (var i = 0; i < data.length; i++) {
-    ctx.fillText(data[i].name, data[i].x, data[i].y - 20);
-    ctx.drawImage(player, data[i].x, data[i].y, 30, 30);
-  }
-});
+var _ambience = require('./ambience');
 
-document.onkeydown = function (event) {
-  switch (event.keyCode) {
-    case 68:
-      socket.emit('keyPress', {
-        position: 'right',
-        state: true
-      });
-      break;
-    case 83:
-      socket.emit('keyPress', {
-        position: 'down',
-        state: true
-      });
-      break;
-    case 65:
-      socket.emit('keyPress', {
-        position: 'left',
-        state: true
-      });
-      break;
-    case 87:
-      socket.emit('keyPress', {
-        position: 'up',
-        state: true
-      });
-      break;
-  }
+var _ambience2 = _interopRequireDefault(_ambience);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Settings = function Settings() {
+  var _this = this;
+
+  _classCallCheck(this, Settings);
+
+  // Define Canvas Elements
+  this.canvas = document.querySelector('canvas');
+  this.width = this.canvas.width = window.innerWidth;
+  this.height = this.canvas.height = window.innerHeight;
+  this.ctx = this.canvas.getContext("2d");
+
+  // Setup Sprites
+  this.map = new Image();
+  this.map.src = '../app/images/grass.jpg';
+  this.player = new Image();
+  this.mushroom = {};
+  this.mushroomImage = new Image();
+  this.mushroomImage.src = '../app/images/shroom.png';
+
+  // Setup an Ambience for the scene
+  this.song = new _ambience2.default('../app/music/theme_song_2.mp3', true);
+  this.collected = new _ambience2.default('../app/music/score.mp3', false);
+
+  // Get Press Start 2P Font To Work On Canvas
+  this.link = document.createElement('link');
+  this.link.rel = 'stylesheet';
+  this.link.type = 'text/css';
+  this.link.href = 'https://fonts.googleapis.com/css?family=Press+Start+2P';
+  document.getElementsByTagName('head')[0].appendChild(this.link);
+  this.image = new Image();
+  this.image.src = this.link.href;
+  this.image.onerror = function () {
+    _this.canvas = document.querySelector('canvas');
+    _this.ctx = _this.canvas.getContext("2d");
+    _this.ctx.font = '12px "Press Start 2P"';
+  };
+  this.ctx.fillStyle = '#FFF';
 };
-document.onkeyup = function (event) {
-  switch (event.keyCode) {
-    case 68:
-      socket.emit('keyPress', {
-        position: 'right',
-        state: false
-      });
-      break;
-    case 83:
-      socket.emit('keyPress', {
-        position: 'down',
-        state: false
-      });
-      break;
-    case 65:
-      socket.emit('keyPress', {
-        position: 'left',
-        state: false
-      });
-      break;
-    case 87:
-      socket.emit('keyPress', {
-        position: 'up',
-        state: false
-      });
-      break;
-  }
-};
 
-},{"socket.io-client":2}]},{},[49]);
+exports.default = Settings;
+
+},{"./ambience":49}],54:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Timer = function () {
+  function Timer(count) {
+    _classCallCheck(this, Timer);
+
+    this.timer = document.querySelector('.stats p');
+    this.count = count;
+  }
+
+  _createClass(Timer, [{
+    key: 'start',
+    value: function start() {
+      this.timer.innerHTML = 'Time left - ' + this.count;
+    }
+  }]);
+
+  return Timer;
+}();
+
+exports.default = Timer;
+
+},{}]},{},[51]);

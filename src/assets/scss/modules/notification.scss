@@ -1,0 +1,17 @@
+@mixin notification {
+  .notification {
+    background: rgba(255, 255, 255, 0.9);
+    position: absolute;
+    top: 0;
+    right: 0;
+    visibility: hidden;
+    min-width: 15em;
+    margin: 1em;
+    border-radius: 3px;
+    text-align: left;
+    padding: .9em;
+    color: #777;
+    font-size: 10px;
+    box-shadow: 1px 5px 20px rgba(0, 0, 0, 0.2);
+  }
+}

@@ -15,7 +15,7 @@ gulp.task('set-dev-node-env', () => {
 // Nodemon - Run up our node server and set NODE_ENV to development
 gulp.task('nodemon', ['set-dev-node-env'], () => {
   nodemon({
-    script: './src/server/index.js',
+    script: './dist/index.js',
     env: {
       'NODE_ENV': 'development'
     }
@@ -35,19 +35,22 @@ gulp.task('js', () => {
 
 // HTML - Move our HTML, images & music to the dist folder
 gulp.task('move', () => {
-  gulp.src('./src/client/assets/images/**/**/*.jpg')
+  gulp.src('./src/assets/images/**/**/*.jpg')
     .pipe(gulp.dest('dist/app/images'));
 
-  gulp.src('./src/client/assets/music/**/**/*.mp3')
+  gulp.src('./src/assets/music/**/**/*.mp3')
     .pipe(gulp.dest('dist/app/music'));
 
-  gulp.src('./src/client/*.html')
+  gulp.src('./src/*.html')
     .pipe(gulp.dest('./dist/'));
+
+  gulp.src(['./src/server/index.js', './src/server/player.js', './src/server/mushroom.js'])
+    .pipe(gulp.dest('./dist'));
 });
 
 // Sass - Compile, autoprefix, clean and move our Sass files to the dist folder
 gulp.task('sass', () => {
-  gulp.src('./src/client/assets/scss/**/**/*.scss')
+  gulp.src('./src/assets/scss/main.scss')
     .pipe(sass())
     .pipe(cleanCSS())
     .pipe(autoprefixer({
@@ -60,9 +63,10 @@ gulp.task('sass', () => {
 // Watch - Watch for any file changes and run appropiate task for each
 gulp.task('watch', () => {
   gulp.watch('./src/client/**/*.js', ['js']);
-  gulp.watch('./src/client/*.html', ['move']);
-  gulp.watch('./src/client/assets/scss/**/**/*.scss', ['sass']);
+  gulp.watch('./src/server/*.js', ['move']);
+  gulp.watch('./src/*.html', ['move']);
+  gulp.watch('./src/assets/scss/**/*.scss', ['sass']);
 });
 
 // Default - Run all our tasks
-gulp.task('default', ['js', 'move', 'sass', 'watch', 'nodemon']);
+gulp.task('default', ['nodemon', 'js', 'move', 'sass', 'watch']);

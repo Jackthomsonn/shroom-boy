@@ -7251,19 +7251,24 @@ var _socket2 = _interopRequireDefault(_socket);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-// import Mushroom from './mushroom';
-// const mushroom = new Mushroom();
 var socket = _socket2.default.connect('http://192.168.0.13:8080');
-var audio = new Audio('./app/music/theme_song.mp3');
+var song = new Audio('./app/music/song_song.mp3');
+var score = new Audio('./app/music/score.mp3');
 var canvas = document.querySelector('canvas');
 var width = canvas.width = window.innerWidth;
 var height = canvas.height = window.innerHeight;
 var ctx = canvas.getContext("2d");
-ctx.font = '20px Open Sans';
+ctx.font = '17px Arial';
+ctx.fillStyle = '#FFF';
 
 var name = void 0;
+var mushroom = void 0;
 
-// audio.play();
+song.addEventListener('ended', function () {
+  this.currentTime = 0;
+  this.play();
+}, false);
+song.play();
 
 socket.on('connect', function () {
   var name = prompt('What is your name?');
@@ -7280,13 +7285,9 @@ socket.on('playerCount', function (data) {
   }
 });
 
-var mushroom = void 0;
 socket.on('mushroomPosition', function (data) {
-  console.log(data);
   mushroom = data;
 });
-
-console.log(mushroom);
 
 socket.on('newPositions', function (data) {
   ctx.clearRect(0, 0, width, height);
@@ -7295,15 +7296,16 @@ socket.on('newPositions', function (data) {
   var mushroomImage = new Image();
   mushroomImage.src = './app/images/shroom.png';
   map.src = './app/images/grass.jpg';
-  player.src = './app/images/player.jpg';
   ctx.drawImage(map, 0, 0, width, height);
   for (var i = 0; i < data.length; i++) {
-    ctx.fillText(data[i].name, data[i].x, data[i].y - 20);
+    player.src = data[i].image;
+    ctx.fillText(data[i].name + ' - ' + data[i].score, data[i].x - 10, data[i].y - 20);
     ctx.drawImage(player, data[i].x, data[i].y, data[i].width, data[i].height);
   }
+
   socket.on('mushroomCaught', function (data) {
     if (data.caught) {
-      console.log(data);
+      score.play();
       mushroom.x = data.x;
       mushroom.y = data.y;
       ctx.drawImage(mushroomImage, mushroom.x, mushroom.y, mushroom.width, mushroom.height);
@@ -7317,25 +7319,29 @@ document.onkeydown = function (event) {
     case 68:
       socket.emit('keyPress', {
         position: 'right',
-        state: true
+        state: true,
+        image: './app/images/character_right.png'
       });
       break;
     case 83:
       socket.emit('keyPress', {
         position: 'down',
-        state: true
+        state: true,
+        image: './app/images/character_down.png'
       });
       break;
     case 65:
       socket.emit('keyPress', {
         position: 'left',
-        state: true
+        state: true,
+        image: './app/images/character_left.png'
       });
       break;
     case 87:
       socket.emit('keyPress', {
         position: 'up',
-        state: true
+        state: true,
+        image: './app/images/character_up.png'
       });
       break;
   }
@@ -7345,25 +7351,29 @@ document.onkeyup = function (event) {
     case 68:
       socket.emit('keyPress', {
         position: 'right',
-        state: false
+        state: false,
+        image: './app/images/character_right.png'
       });
       break;
     case 83:
       socket.emit('keyPress', {
         position: 'down',
-        state: false
+        state: false,
+        image: './app/images/character_down.png'
       });
       break;
     case 65:
       socket.emit('keyPress', {
         position: 'left',
-        state: false
+        state: false,
+        image: './app/images/character_left.png'
       });
       break;
     case 87:
       socket.emit('keyPress', {
         position: 'up',
-        state: false
+        state: false,
+        image: './app/images/character_up.png'
       });
       break;
   }

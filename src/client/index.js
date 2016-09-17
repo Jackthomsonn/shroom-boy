@@ -1,18 +1,23 @@
 'use strict';
 import io from 'socket.io-client';
-// import Mushroom from './mushroom';
-// const mushroom = new Mushroom();
 const socket = io.connect('http://192.168.0.13:8080');
-const audio = new Audio('./app/music/theme_song.mp3');
+const song = new Audio('./app/music/song_song.mp3');
+const score = new Audio('./app/music/score.mp3');
 const canvas = document.querySelector('canvas');
 const width = canvas.width = window.innerWidth;
 const height = canvas.height = window.innerHeight;
 const ctx = canvas.getContext("2d");
-ctx.font = '20px Open Sans';
+ctx.font = '17px Arial';
+ctx.fillStyle = '#FFF';
 
 let name;
+let mushroom;
 
-// audio.play();
+song.addEventListener('ended', function() {
+  this.currentTime = 0;
+  this.play();
+}, false);
+song.play();
 
 socket.on('connect', function() {
   const name = prompt('What is your name?');
@@ -29,13 +34,9 @@ socket.on('playerCount', function(data) {
   }
 });
 
-let mushroom;
 socket.on('mushroomPosition', function(data) {
-  console.log(data);
   mushroom = data;
 });
-
-console.log(mushroom);
 
 socket.on('newPositions', function(data) {
   ctx.clearRect(0, 0, width, height);
@@ -44,15 +45,16 @@ socket.on('newPositions', function(data) {
   const mushroomImage = new Image();
   mushroomImage.src = './app/images/shroom.png';
   map.src = './app/images/grass.jpg';
-  player.src = './app/images/player.jpg';
   ctx.drawImage(map, 0, 0, width, height);
-  for (var i = 0; i < data.length; i++) {
-    ctx.fillText(data[i].name, data[i].x, data[i].y - 20);
+  for (let i = 0; i < data.length; i++) {
+    player.src = data[i].image;
+    ctx.fillText(data[i].name + ' - ' + data[i].score, data[i].x - 10, data[i].y - 20);
     ctx.drawImage(player, data[i].x, data[i].y, data[i].width, data[i].height);
   }
+
   socket.on('mushroomCaught', function(data) {
     if(data.caught) {
-      console.log(data);
+      score.play();
       mushroom.x = data.x;
       mushroom.y = data.y;
       ctx.drawImage(mushroomImage, mushroom.x, mushroom.y, mushroom.width, mushroom.height);
@@ -66,25 +68,29 @@ document.onkeydown = function(event) {
   case 68 :
     socket.emit('keyPress', {
       position: 'right',
-      state: true
+      state: true,
+      image: './app/images/character_right.png'
     });
     break;
   case 83 :
     socket.emit('keyPress', {
       position: 'down',
-      state: true
+      state: true,
+      image: './app/images/character_down.png'
     });
     break;
   case 65 :
     socket.emit('keyPress', {
       position: 'left',
-      state: true
+      state: true,
+      image: './app/images/character_left.png'
     });
     break;
   case 87 :
     socket.emit('keyPress', {
       position: 'up',
-      state: true
+      state: true,
+      image: './app/images/character_up.png'
     });
     break;
   }
@@ -94,25 +100,29 @@ document.onkeyup = function(event) {
   case 68 :
     socket.emit('keyPress', {
       position: 'right',
-      state: false
+      state: false,
+      image: './app/images/character_right.png'
     });
     break;
   case 83 :
     socket.emit('keyPress', {
       position: 'down',
-      state: false
+      state: false,
+      image: './app/images/character_down.png'
     });
     break;
   case 65 :
     socket.emit('keyPress', {
       position: 'left',
-      state: false
+      state: false,
+      image: './app/images/character_left.png'
     });
     break;
   case 87 :
     socket.emit('keyPress', {
       position: 'up',
-      state: false
+      state: false,
+      image: './app/images/character_up.png'
     });
     break;
   }

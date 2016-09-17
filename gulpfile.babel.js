@@ -15,7 +15,7 @@ gulp.task('set-dev-node-env', () => {
 // Nodemon - Run up our node server and set NODE_ENV to development
 gulp.task('nodemon', ['set-dev-node-env'], () => {
   nodemon({
-    script: './src/server/index.js',
+    script: './dist/index.js',
     env: {
       'NODE_ENV': 'development'
     }
@@ -43,6 +43,9 @@ gulp.task('move', () => {
 
   gulp.src('./src/client/*.html')
     .pipe(gulp.dest('./dist/'));
+
+  gulp.src(['./src/server/index.js', './src/server/player.js', './src/server/mushroom.js'])
+    .pipe(gulp.dest('./dist'));
 });
 
 // Sass - Compile, autoprefix, clean and move our Sass files to the dist folder
@@ -60,6 +63,7 @@ gulp.task('sass', () => {
 // Watch - Watch for any file changes and run appropiate task for each
 gulp.task('watch', () => {
   gulp.watch('./src/client/**/*.js', ['js']);
+  gulp.watch('./src/server/**/*.js', ['move']);
   gulp.watch('./src/client/*.html', ['move']);
   gulp.watch('./src/client/assets/scss/**/**/*.scss', ['sass']);
 });

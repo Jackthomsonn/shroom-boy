@@ -4,6 +4,8 @@ const app = express();
 const server = require('http').Server(app);
 const port = process.env.PORT || 8080;
 const Player = require('./player');
+const Mushroom = require('./mushroom');
+const mushroom = new Mushroom();
 
 app.use(express.static('dist'));
 app.get('/', function(req, res) {
@@ -29,7 +31,7 @@ io.sockets.on('connection', function(socket){
     ++online;
     console.log(data.name + ' just joined the game');
     console.log('Online players: ' + online);
-    player = Player.Player(_id);
+    player = new Player(_id);
     if(!data.name) {
       player.name = 'Anon';
     } else {
@@ -47,7 +49,6 @@ io.sockets.on('connection', function(socket){
   });
 
   socket.on('keyPress',function(data){
-    console.log('Pressed');
     if(data.position === 'left') {
       player.left = data.state;
     }
@@ -61,6 +62,13 @@ io.sockets.on('connection', function(socket){
       player.down = data.state;
     }
   });
+
+  socket.emit('mushroomPosition', {
+    x: mushroom.x,
+    y: mushroom.y,
+    width: mushroom.width,
+    height: mushroom.height
+  });
 });
 
 setInterval(function(){
@@ -71,13 +79,25 @@ setInterval(function(){
     allPlayers.push({
       x:player.x,
       y:player.y,
+      width: player.width,
+      height: player.height,
       id:player._id,
       name: player.name
     });
+    if(player.x < mushroom.x + mushroom.width && player.x + player.width  > mushroom.x &&
+		player.y < mushroom.y + mushroom.height && player.y + player.height > mushroom.y) {
+      mushroom.respawn();
+      io.emit('mushroomCaught', {
+        caught: true,
+        x: mushroom.x,
+        y: mushroom.y
+      });
+      break;
+    }
   }
   for(const i in sockets){
     const socket = sockets[i];
-    socket.emit('newPositions',allPlayers);
+    socket.emit('newPositions', allPlayers);
     socket.emit('playerCount', {
       online: online
     });

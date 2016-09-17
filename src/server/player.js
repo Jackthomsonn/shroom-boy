@@ -1,12 +1,14 @@
-const Player = function(id){
+function Player(id){
   const self = {
-    x: Math.floor(Math.random() * 1000),
-    y: Math.floor(Math.random() * 300),
+    x: Math.floor(Math.random() * (1000 - 200 + 1)) + 200,
+    y: Math.floor(Math.random() * (500 - 200 + 1)) + 200,
     _id: id,
     right: false,
     left: false,
     up: false,
     down: false,
+    width: 30,
+    height: 30,
     maxSpd: 10
   };
   self.updatePosition = function(){
@@ -24,8 +26,6 @@ const Player = function(id){
     }
   };
   return self;
-};
+}
 
-module.exports = {
-  Player: Player
-};
+module.exports = Player;

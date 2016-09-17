@@ -7251,6 +7251,8 @@ var _socket2 = _interopRequireDefault(_socket);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+// import Mushroom from './mushroom';
+// const mushroom = new Mushroom();
 var socket = _socket2.default.connect('http://192.168.0.13:8080');
 var audio = new Audio('./app/music/theme_song.mp3');
 var canvas = document.querySelector('canvas');
@@ -7261,7 +7263,7 @@ ctx.font = '20px Open Sans';
 
 var name = void 0;
 
-audio.play();
+// audio.play();
 
 socket.on('connect', function () {
   var name = prompt('What is your name?');
@@ -7278,17 +7280,36 @@ socket.on('playerCount', function (data) {
   }
 });
 
+var mushroom = void 0;
+socket.on('mushroomPosition', function (data) {
+  console.log(data);
+  mushroom = data;
+});
+
+console.log(mushroom);
+
 socket.on('newPositions', function (data) {
   ctx.clearRect(0, 0, width, height);
   var map = new Image();
   var player = new Image();
+  var mushroomImage = new Image();
+  mushroomImage.src = './app/images/shroom.png';
   map.src = './app/images/grass.jpg';
   player.src = './app/images/player.jpg';
   ctx.drawImage(map, 0, 0, width, height);
   for (var i = 0; i < data.length; i++) {
     ctx.fillText(data[i].name, data[i].x, data[i].y - 20);
-    ctx.drawImage(player, data[i].x, data[i].y, 30, 30);
+    ctx.drawImage(player, data[i].x, data[i].y, data[i].width, data[i].height);
   }
+  socket.on('mushroomCaught', function (data) {
+    if (data.caught) {
+      console.log(data);
+      mushroom.x = data.x;
+      mushroom.y = data.y;
+      ctx.drawImage(mushroomImage, mushroom.x, mushroom.y, mushroom.width, mushroom.height);
+    }
+  });
+  ctx.drawImage(mushroomImage, mushroom.x, mushroom.y, mushroom.width, mushroom.height);
 });
 
 document.onkeydown = function (event) {

@@ -7,19 +7,27 @@ const Player = require('./player');
 const Mushroom = require('./mushroom');
 const mushroom = new Mushroom();
 
-app.use(express.static('dist'));
+switch(process.env.NODE_ENV) {
+case 'development':
+  app.use(express.static('dist'));
+  break;
+case 'production':
+  app.use(express.static(__dirname));
+  break;
+}
+
 app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/dist/index.html');
+  res.sendFile('dist/index.html');
 });
 
-server.listen(8080);
+server.listen(port);
 
-console.log('Server is running on port' + port + ' in ' + process.env.NODE_ENV + ' mode');
+console.log('Server is running on port ' + port + ' in ' + process.env.NODE_ENV + ' mode');
 
 const sockets = {};
 const players = {};
 
-var io = require('socket.io')(server,{});
+var io = require('socket.io')(server);
 let online = 0;
 io.sockets.on('connection', (socket) => {
   const _id = socket.id;

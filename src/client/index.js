@@ -1,6 +1,6 @@
 'use strict';
 import io from 'socket.io-client';
-const socket = io.connect('https://shroom-boy.herokuapp.com/');
+const socket = io.connect('http://192.168.0.13:8080');
 const song = new Audio('./app/music/theme_song.mp3');
 const score = new Audio('./app/music/score.mp3');
 const canvas = document.querySelector('canvas');

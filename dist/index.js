@@ -30,10 +30,10 @@ const players = {};
 
 var io = require('socket.io')(server);
 let online = 0;
-let name;
-let player;
 io.sockets.on('connection', (socket) => {
   const _id = socket.id;
+  let name;
+  let player;
   sockets[_id] = socket;
   socket.on('addPlayer', (data) => {
     ++online;

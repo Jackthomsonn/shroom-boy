@@ -1,3 +1,4 @@
+/* eslint no-console:0 */
 'use strict';
 const express = require('express');
 const app = express();
@@ -29,11 +30,11 @@ const players = {};
 
 var io = require('socket.io')(server);
 let online = 0;
+let name;
+let player;
 io.sockets.on('connection', (socket) => {
   const _id = socket.id;
   sockets[_id] = socket;
-  let name;
-  let player;
   socket.on('addPlayer', (data) => {
     ++online;
     console.log(data.name + ' just joined the game');

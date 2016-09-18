@@ -50,7 +50,7 @@ gulp.task('move', () => {
 
 // Sass - Compile, autoprefix, clean and move our Sass files to the dist folder
 gulp.task('sass', () => {
-  gulp.src('./src/client/assets/scss/**/**/*.scss')
+  gulp.src('./src/client/assets/scss/*.scss')
     .pipe(sass())
     .pipe(cleanCSS())
     .pipe(autoprefixer({
@@ -65,7 +65,7 @@ gulp.task('watch', () => {
   gulp.watch('./src/client/**/*.js', ['js']);
   gulp.watch('./src/server/**/*.js', ['move']);
   gulp.watch('./src/client/*.html', ['move']);
-  gulp.watch('./src/client/assets/scss/**/**/*.scss', ['sass']);
+  gulp.watch('./src/client/assets/scss/*.scss', ['sass']);
 });
 
 // Default - Run all our tasks

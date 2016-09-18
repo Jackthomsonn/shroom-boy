@@ -1,6 +1,6 @@
 'use strict';
 import io from 'socket.io-client';
-const socket = io.connect('https://shroom-boy.herokuapp.com/');
+const socket = io.connect('http://192.168.0.13:8080');
 const song = new Audio('./app/music/theme_song.mp3');
 const score = new Audio('./app/music/score.mp3');
 const canvas = document.querySelector('canvas');
@@ -18,6 +18,14 @@ song.play();
 
 socket.on('connect', () => {
   const name = prompt('What is your name?');
+  socket.on('inBuffer', function(data) {
+    const buffer = document.querySelector('.container');
+    if(data.inBuffer) {
+      buffer.style.visibility = 'visible';
+    } else {
+      buffer.style.visibility = 'hidden';
+    }
+  });
   socket.emit('addPlayer', {
     name: name
   });
@@ -44,9 +52,11 @@ socket.on('newPositions', (data) => {
   map.src = './app/images/grass.jpg';
   ctx.drawImage(map, 0, 0, width, height);
   for (let i = 0; i < data.length; i++) {
-    player.src = data[i].image;
-    ctx.fillText(data[i].name + ' - ' + data[i].score, data[i].x - 10, data[i].y - 20);
-    ctx.drawImage(player, data[i].x, data[i].y, data[i].width, data[i].height);
+    if(data[i].ready) {
+      player.src = data[i].image;
+      ctx.fillText(data[i].name + ' - ' + data[i].score, data[i].x - 10, data[i].y - 20);
+      ctx.drawImage(player, data[i].x, data[i].y, data[i].width, data[i].height);
+    }
   }
 
   socket.on('mushroomCaught', (data) => {

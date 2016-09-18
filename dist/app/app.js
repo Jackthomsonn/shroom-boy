@@ -7251,7 +7251,7 @@ var _socket2 = _interopRequireDefault(_socket);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var socket = _socket2.default.connect('https://shroom-boy.herokuapp.com/');
+var socket = _socket2.default.connect('http://192.168.0.13:8080');
 var song = new Audio('./app/music/theme_song.mp3');
 var score = new Audio('./app/music/score.mp3');
 var canvas = document.querySelector('canvas');
@@ -7269,6 +7269,14 @@ song.play();
 
 socket.on('connect', function () {
   var name = prompt('What is your name?');
+  socket.on('inBuffer', function (data) {
+    var buffer = document.querySelector('.container');
+    if (data.inBuffer) {
+      buffer.style.visibility = 'visible';
+    } else {
+      buffer.style.visibility = 'hidden';
+    }
+  });
   socket.emit('addPlayer', {
     name: name
   });
@@ -7295,9 +7303,11 @@ socket.on('newPositions', function (data) {
   map.src = './app/images/grass.jpg';
   ctx.drawImage(map, 0, 0, width, height);
   for (var i = 0; i < data.length; i++) {
-    player.src = data[i].image;
-    ctx.fillText(data[i].name + ' - ' + data[i].score, data[i].x - 10, data[i].y - 20);
-    ctx.drawImage(player, data[i].x, data[i].y, data[i].width, data[i].height);
+    if (data[i].ready) {
+      player.src = data[i].image;
+      ctx.fillText(data[i].name + ' - ' + data[i].score, data[i].x - 10, data[i].y - 20);
+      ctx.drawImage(player, data[i].x, data[i].y, data[i].width, data[i].height);
+    }
   }
 
   socket.on('mushroomCaught', function (data) {

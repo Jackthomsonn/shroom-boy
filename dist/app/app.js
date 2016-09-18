@@ -7251,7 +7251,7 @@ var _socket2 = _interopRequireDefault(_socket);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var socket = _socket2.default.connect('http://192.168.0.13:8080');
+var socket = _socket2.default.connect('https://shroom-boy.herokuapp.com/');
 var song = new Audio('./app/music/theme_song.mp3');
 var score = new Audio('./app/music/score.mp3');
 var canvas = document.querySelector('canvas');

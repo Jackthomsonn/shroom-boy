@@ -9,4 +9,12 @@ body {
   overflow: hidden;
 }
 
+.stats {
+  position: absolute;
+  top: 0;
+  margin: 2.25em 10em;
+  font-weight: 700;
+  color: #FFF;
+}
+
 @include dialogue();

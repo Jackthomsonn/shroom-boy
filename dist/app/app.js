@@ -7251,7 +7251,7 @@ var _socket2 = _interopRequireDefault(_socket);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var socket = _socket2.default.connect('http://192.168.0.13:8080');
+var socket = _socket2.default.connect('https://shroom-boy.herokuapp.com/');
 var song = new Audio('./app/music/theme_song.mp3');
 var score = new Audio('./app/music/score.mp3');
 var canvas = document.querySelector('canvas');
@@ -7279,6 +7279,11 @@ socket.on('connect', function () {
   });
   socket.emit('addPlayer', {
     name: name
+  });
+  socket.on('error', function () {
+    socket = (socket, {
+      'force new connection': true
+    });
   });
 });
 
@@ -7319,6 +7324,14 @@ socket.on('newPositions', function (data) {
     }
   });
   ctx.drawImage(mushroomImage, mushroom.x, mushroom.y, mushroom.width, mushroom.height);
+});
+
+var body = document.querySelector('body');
+var timer = document.createElement('div');
+timer.className = 'stats';
+body.appendChild(timer);
+socket.on('timer', function (data) {
+  timer.innerHTML = 'Time left - ' + data.timer;
 });
 
 document.onkeydown = function (event) {

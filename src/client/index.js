@@ -1,6 +1,6 @@
 'use strict';
 import io from 'socket.io-client';
-const socket = io.connect('http://192.168.0.13:8080');
+let socket = io.connect('https://shroom-boy.herokuapp.com/');
 const song = new Audio('./app/music/theme_song.mp3');
 const score = new Audio('./app/music/score.mp3');
 const canvas = document.querySelector('canvas');
@@ -28,6 +28,11 @@ socket.on('connect', () => {
   });
   socket.emit('addPlayer', {
     name: name
+  });
+  socket.on('error', () => {
+    socket = (socket, {
+      'force new connection': true
+    });
   });
 });
 
@@ -68,6 +73,14 @@ socket.on('newPositions', (data) => {
     }
   });
   ctx.drawImage(mushroomImage, mushroom.x, mushroom.y, mushroom.width, mushroom.height);
+});
+
+const body = document.querySelector('body');
+const timer = document.createElement('div');
+timer.className = 'stats';
+body.appendChild(timer);
+socket.on('timer', function(data) {
+  timer.innerHTML = 'Time left - ' + data.timer;
 });
 
 document.onkeydown = (event) => {

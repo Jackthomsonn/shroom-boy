@@ -39,6 +39,10 @@ const buffer = setInterval( () => {
   }
 },1000);
 
+process.on('uncaughtException', function (exception) {
+  console.log(exception);
+});
+
 io.sockets.on('connection', (socket) => {
   const _id = socket.id;
   let name;
@@ -47,6 +51,12 @@ io.sockets.on('connection', (socket) => {
   let bufferName;
   const buffer = [];
   sockets[_id] = socket;
+
+  setInterval(function() {
+    socket.emit('timer', {
+      timer: timer
+    });
+  },1000);
 
   socket.on('addPlayer', (data) => {
     if(timer <= 10) {

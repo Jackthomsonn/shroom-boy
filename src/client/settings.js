@@ -1,9 +1,21 @@
 'use strict';
 import Ambience from './ambience';
-
 export default class Settings {
+ /**
+  * @name Settings
+  *
+  * @description A class used to initialise our game with predefined settings
+  *
+  * @example const settings = new Settings();
+  */
   constructor() {
-    // Define Canvas Elements
+    // Setup Local Variables
+    this.connection = 'https://shroom-boy.herokuapp.com/';
+    this.notification;
+    this.timer;
+    this.name;
+
+    // Setup Canvas Elements
     this.canvas = document.querySelector('canvas');
     this.width = this.canvas.width = window.innerWidth;
     this.height = this.canvas.height = window.innerHeight;

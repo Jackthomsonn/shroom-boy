@@ -55,16 +55,15 @@ io.sockets.on('connection', (socket) => {
   },1000);
 
   socket.on('addPlayer', (data) => {
+    if(data.name === 'null') {
+      data.name = 'Anon';
+    }
     if(timer <= 10) {
       player = new Player(_id);
       player.ready = false;
       players[_id] = player;
       console.log('User added to queue');
       created = false;
-      if(!data.name) {
-        data.name = 'Anon';
-        bufferName = data.name;
-      }
       buffer.push(data);
       bufferName = data.name;
       socket.emit('inBuffer', {
@@ -85,11 +84,7 @@ io.sockets.on('connection', (socket) => {
               },2000);
               console.log(data.name + ' just joined the game');
               console.log('Online players: ' + online);
-              if(!buffer[i].name) {
-                player.name = 'Anon';
-              } else {
-                player.name = buffer[i].name;
-              }
+              player.name = buffer[i].name;
               player.ready = true;
               created = true;
               socket.emit('inBuffer', {
@@ -112,11 +107,7 @@ io.sockets.on('connection', (socket) => {
       console.log(data.name + ' just joined the game');
       console.log('Online players: ' + online);
       player = new Player(_id);
-      if(!data.name) {
-        player.name = 'Anon';
-      } else {
-        player.name = data.name;
-      }
+      player.name = data.name;
       player.ready = true;
       players[_id] = player;
     }
@@ -187,15 +178,22 @@ function checkWinner() {
     let winner;
     let winningScore;
     const winners = [];
-    const playersW = new Array(players);
-    for(let i = 0; i < playersW.length; i++) {
-      const player = playersW[i];
+    const playersData = new Array(players);
+    for(let i = 0; i < playersData.length; i++) {
+      const player = playersData[i];
       for(let key in player) {
         key = key;
-        winners.push({
-          name: player[key].name,
-          score: player[key].score
-        });
+        if(!player[key].score) {
+          winners.push({
+            name: 'No one',
+            score: 0
+          });
+        } else {
+          winners.push({
+            name: player[key].name,
+            score: player[key].score
+          });
+        }
       }
       const score = [];
       for(let j = 0; j < winners.length; j++) {

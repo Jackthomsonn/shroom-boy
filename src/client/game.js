@@ -4,47 +4,46 @@ import Notification from './notification';
 import Settings from './settings';
 import Timer from './timer';
 
-let notification;
-let timer;
-let name;
-
 export default class Game {
+ /**
+  * @name Game
+  *
+  * @description A class used to instantiate the game
+  *
+  * @example new Game();
+  */
   constructor() {
-    this.socket = io.connect('https://shroom-boy.herokuapp.com/');
     this.settings = new Settings();
-
-    this.start();
-  }
-  start() {
+    this.socket = io.connect(this.settings.connection);
     this.socket.on('connect', () => {
       this.settings.song.play();
-      name = prompt('What is your name?');
+      name = prompt('Give your character a name');
       this.socket.on('inBuffer', (data) => {
-        notification = new Notification(null, '.container');
-        data.inBuffer ? notification.show() : notification.hide(!data.inBuffer);
+        this.settings.notification = new Notification(null, '.container');
+        data.inBuffer ? this.settings.notification.show() : this.settings.notification.hide(!data.inBuffer);
       });
       this.socket.emit('addPlayer', {
         name: name
       });
       this.socket.on('justJoined', (data) => {
-        notification = new Notification(data.name + ' just joined', '.notification');
-        notification.show();
+        this.settings.notification = new Notification(data.name + ' just joined', '.notification');
+        this.settings.notification.show();
         this.socket.on('timeout', (data) => {
-          notification.hide(data.timeout);
+          this.settings.notification.hide(data.timeout);
         });
       });
       this.socket.on('justLeft', (data) => {
-        notification = new Notification(data.name + ' just left', '.notification');
-        notification.show();
+        this.settings.notification = new Notification(data.name + ' just left', '.notification');
+        this.settings.notification.show();
         this.socket.on('timeout', (data) => {
-          notification.hide(data.timeout);
+          this.settings.notification.hide(data.timeout);
         });
       });
       this.socket.on('winner', (data) => {
-        notification = new Notification(data.winner + ' was victorious', '.notification');
-        notification.show();
+        this.settings.notification = new Notification(data.winner + ' was victorious', '.notification');
+        this.settings.notification.show();
         this.socket.on('newGame', (data) => {
-          notification.hide(data.newGame);
+          this.settings.notification.hide(data.newGame);
         });
       });
       this.socket.on('error', () => {
@@ -79,8 +78,8 @@ export default class Game {
         this.settings.ctx.drawImage(this.settings.mushroomImage, this.settings.mushroom.x, this.settings.mushroom.y, this.settings.mushroom.width, this.settings.mushroom.height);
       });
       this.socket.on('timer', (data) => {
-        timer = new Timer(data.timer);
-        timer.start();
+        this.settings.timer = new Timer(data.timer);
+        this.settings.timer.start();
       });
       document.onkeydown = (event) => {
         switch(event.keyCode) {

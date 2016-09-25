@@ -1,12 +1,13 @@
-@import './modules/dialogue';
-@import './modules/stats';
-@import './modules/notification';
+@import './global/variables';
+@import './components/dialogue';
+@import './components/stats';
+@import './components/notification';
 @import 'https://fonts.googleapis.com/css?family=Press+Start+2P';
 
 * {
   margin: 0; padding: 0;
   box-sizing: border-box;
-  font-family: 'Press Start 2P', cursive;
+  font-family: $font-family;
 }
 body {
   overflow: hidden;

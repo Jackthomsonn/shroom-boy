@@ -7249,11 +7249,32 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+var _createClass = function () {
+  function defineProperties(target, props) {
+    for (var i = 0; i < props.length; i++) {
+      var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
+    }
+  }return function (Constructor, protoProps, staticProps) {
+    if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
+  };
+}();
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _classCallCheck(instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError("Cannot call a class as a function");
+  }
+}
 
 var Ambience = function () {
+  /**
+   * @name Ambience
+   *
+   * @description A class used for creating an ambience in our scenes
+   *
+   * @param {string} src the source of our audio stream
+   * @param {boolean} loop defines whether the audio stream should loop or not
+   * @example const ambience = new Ambience('./src/to/file.mp3', true);
+   */
   function Ambience(src, loop) {
     _classCallCheck(this, Ambience);
 
@@ -7261,6 +7282,10 @@ var Ambience = function () {
     this.audio.src = src;
     this.audio.loop = loop;
   }
+
+  /**
+   * A method to play our audio stream
+   */
 
   _createClass(Ambience, [{
     key: 'play',
@@ -7281,8 +7306,6 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
 var _socket = require('socket.io-client');
 
 var _socket2 = _interopRequireDefault(_socket);
@@ -7299,165 +7322,163 @@ var _timer = require('./timer');
 
 var _timer2 = _interopRequireDefault(_timer);
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireDefault(obj) {
+  return obj && obj.__esModule ? obj : { default: obj };
+}
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var notification = void 0;
-var timer = void 0;
-var name = void 0;
-
-var Game = function () {
-  function Game() {
-    _classCallCheck(this, Game);
-
-    this.socket = _socket2.default.connect('https://shroom-boy.herokuapp.com/');
-    this.settings = new _settings2.default();
-
-    this.start();
+function _classCallCheck(instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError("Cannot call a class as a function");
   }
+}
 
-  _createClass(Game, [{
-    key: 'start',
-    value: function start() {
-      var _this = this;
+var Game =
+/**
+ * @name Game
+ *
+ * @description A class used to instantiate the game
+ *
+ * @example new Game();
+ */
+function Game() {
+  var _this = this;
 
-      this.socket.on('connect', function () {
-        _this.settings.song.play();
-        name = prompt('What is your name?');
-        _this.socket.on('inBuffer', function (data) {
-          notification = new _notification2.default(null, '.container');
-          data.inBuffer ? notification.show() : notification.hide(!data.inBuffer);
-        });
-        _this.socket.emit('addPlayer', {
-          name: name
-        });
-        _this.socket.on('justJoined', function (data) {
-          notification = new _notification2.default(data.name + ' just joined', '.notification');
-          notification.show();
-          _this.socket.on('timeout', function (data) {
-            notification.hide(data.timeout);
-          });
-        });
-        _this.socket.on('justLeft', function (data) {
-          notification = new _notification2.default(data.name + ' just left', '.notification');
-          notification.show();
-          _this.socket.on('timeout', function (data) {
-            notification.hide(data.timeout);
-          });
-        });
-        _this.socket.on('winner', function (data) {
-          notification = new _notification2.default(data.winner + ' was victorious', '.notification');
-          notification.show();
-          _this.socket.on('newGame', function (data) {
-            notification.hide(data.newGame);
-          });
-        });
-        _this.socket.on('error', function () {
-          _this.socket = (_this.socket, {
-            'force new connection': true
-          });
-        });
-        _this.socket.on('playerCount', function (data) {
-          data.online > 1 ? _this.settings.ctx.fillText(data.online + ' players online', 20, 50) : _this.settings.ctx.fillText(data.online + ' player online', 20, 50);
-        });
-        _this.socket.on('mushroomPosition', function (data) {
-          _this.settings.mushroom = data;
-        });
-        _this.socket.on('newPositions', function (data) {
-          _this.settings.ctx.clearRect(0, 0, _this.settings.width, _this.settings.height);
-          _this.settings.ctx.drawImage(_this.settings.map, 0, 0, _this.settings.width, _this.settings.height);
-          for (var i = 0; i < data.length; i++) {
-            if (data[i].ready) {
-              _this.settings.player.src = data[i].image;
-              _this.settings.ctx.fillText(data[i].name + ' - ' + data[i].score, data[i].x - 10, data[i].y - 20);
-              _this.settings.ctx.drawImage(_this.settings.player, data[i].x, data[i].y, data[i].width, data[i].height);
-            }
-          }
-          _this.socket.on('mushroomCaught', function (data) {
-            if (data.caught) {
-              _this.settings.collected.play();
-              _this.settings.mushroom.x = data.x;
-              _this.settings.mushroom.y = data.y;
-              _this.settings.ctx.drawImage(_this.settings.mushroomImage, _this.settings.mushroom.x, _this.settings.mushroom.y, _this.settings.mushroom.width, _this.settings.mushroom.height);
-            }
-          });
-          _this.settings.ctx.drawImage(_this.settings.mushroomImage, _this.settings.mushroom.x, _this.settings.mushroom.y, _this.settings.mushroom.width, _this.settings.mushroom.height);
-        });
-        _this.socket.on('timer', function (data) {
-          timer = new _timer2.default(data.timer);
-          timer.start();
-        });
-        document.onkeydown = function (event) {
-          switch (event.keyCode) {
-            case 68:
-              _this.socket.emit('keyPress', {
-                position: 'right',
-                state: true,
-                image: '../app/images/character_right.png'
-              });
-              break;
-            case 83:
-              _this.socket.emit('keyPress', {
-                position: 'down',
-                state: true,
-                image: '../app/images/character_down.png'
-              });
-              break;
-            case 65:
-              _this.socket.emit('keyPress', {
-                position: 'left',
-                state: true,
-                image: '../app/images/character_left.png'
-              });
-              break;
-            case 87:
-              _this.socket.emit('keyPress', {
-                position: 'up',
-                state: true,
-                image: '../app/images/character_up.png'
-              });
-              break;
-          }
-        };
-        document.onkeyup = function (event) {
-          switch (event.keyCode) {
-            case 68:
-              _this.socket.emit('keyPress', {
-                position: 'right',
-                state: false,
-                image: '../app/images/character_right.png'
-              });
-              break;
-            case 83:
-              _this.socket.emit('keyPress', {
-                position: 'down',
-                state: false,
-                image: '../app/images/character_down.png'
-              });
-              break;
-            case 65:
-              _this.socket.emit('keyPress', {
-                position: 'left',
-                state: false,
-                image: '../app/images/character_left.png'
-              });
-              break;
-            case 87:
-              _this.socket.emit('keyPress', {
-                position: 'up',
-                state: false,
-                image: '../app/images/character_up.png'
-              });
-              break;
-          }
-        };
+  _classCallCheck(this, Game);
+
+  this.settings = new _settings2.default();
+  this.socket = _socket2.default.connect(this.settings.connection);
+  this.socket.on('connect', function () {
+    _this.settings.song.play();
+    name = prompt('Give your character a name');
+    _this.socket.on('inBuffer', function (data) {
+      _this.settings.notification = new _notification2.default(null, '.container');
+      data.inBuffer ? _this.settings.notification.show() : _this.settings.notification.hide(!data.inBuffer);
+    });
+    _this.socket.emit('addPlayer', {
+      name: name
+    });
+    _this.socket.on('justJoined', function (data) {
+      _this.settings.notification = new _notification2.default(data.name + ' just joined', '.notification');
+      _this.settings.notification.show();
+      _this.socket.on('timeout', function (data) {
+        _this.settings.notification.hide(data.timeout);
       });
-    }
-  }]);
-
-  return Game;
-}();
+    });
+    _this.socket.on('justLeft', function (data) {
+      _this.settings.notification = new _notification2.default(data.name + ' just left', '.notification');
+      _this.settings.notification.show();
+      _this.socket.on('timeout', function (data) {
+        _this.settings.notification.hide(data.timeout);
+      });
+    });
+    _this.socket.on('winner', function (data) {
+      _this.settings.notification = new _notification2.default(data.winner + ' was victorious', '.notification');
+      _this.settings.notification.show();
+      _this.socket.on('newGame', function (data) {
+        _this.settings.notification.hide(data.newGame);
+      });
+    });
+    _this.socket.on('error', function () {
+      _this.socket = (_this.socket, {
+        'force new connection': true
+      });
+    });
+    _this.socket.on('playerCount', function (data) {
+      data.online > 1 ? _this.settings.ctx.fillText(data.online + ' players online', 20, 50) : _this.settings.ctx.fillText(data.online + ' player online', 20, 50);
+    });
+    _this.socket.on('mushroomPosition', function (data) {
+      _this.settings.mushroom = data;
+    });
+    _this.socket.on('newPositions', function (data) {
+      _this.settings.ctx.clearRect(0, 0, _this.settings.width, _this.settings.height);
+      _this.settings.ctx.drawImage(_this.settings.map, 0, 0, _this.settings.width, _this.settings.height);
+      for (var i = 0; i < data.length; i++) {
+        if (data[i].ready) {
+          _this.settings.player.src = data[i].image;
+          _this.settings.ctx.fillText(data[i].name + ' - ' + data[i].score, data[i].x - 10, data[i].y - 20);
+          _this.settings.ctx.drawImage(_this.settings.player, data[i].x, data[i].y, data[i].width, data[i].height);
+        }
+      }
+      _this.socket.on('mushroomCaught', function (data) {
+        if (data.caught) {
+          _this.settings.collected.play();
+          _this.settings.mushroom.x = data.x;
+          _this.settings.mushroom.y = data.y;
+          _this.settings.ctx.drawImage(_this.settings.mushroomImage, _this.settings.mushroom.x, _this.settings.mushroom.y, _this.settings.mushroom.width, _this.settings.mushroom.height);
+        }
+      });
+      _this.settings.ctx.drawImage(_this.settings.mushroomImage, _this.settings.mushroom.x, _this.settings.mushroom.y, _this.settings.mushroom.width, _this.settings.mushroom.height);
+    });
+    _this.socket.on('timer', function (data) {
+      _this.settings.timer = new _timer2.default(data.timer);
+      _this.settings.timer.start();
+    });
+    document.onkeydown = function (event) {
+      switch (event.keyCode) {
+        case 68:
+          _this.socket.emit('keyPress', {
+            position: 'right',
+            state: true,
+            image: '../app/images/character_right.png'
+          });
+          break;
+        case 83:
+          _this.socket.emit('keyPress', {
+            position: 'down',
+            state: true,
+            image: '../app/images/character_down.png'
+          });
+          break;
+        case 65:
+          _this.socket.emit('keyPress', {
+            position: 'left',
+            state: true,
+            image: '../app/images/character_left.png'
+          });
+          break;
+        case 87:
+          _this.socket.emit('keyPress', {
+            position: 'up',
+            state: true,
+            image: '../app/images/character_up.png'
+          });
+          break;
+      }
+    };
+    document.onkeyup = function (event) {
+      switch (event.keyCode) {
+        case 68:
+          _this.socket.emit('keyPress', {
+            position: 'right',
+            state: false,
+            image: '../app/images/character_right.png'
+          });
+          break;
+        case 83:
+          _this.socket.emit('keyPress', {
+            position: 'down',
+            state: false,
+            image: '../app/images/character_down.png'
+          });
+          break;
+        case 65:
+          _this.socket.emit('keyPress', {
+            position: 'left',
+            state: false,
+            image: '../app/images/character_left.png'
+          });
+          break;
+        case 87:
+          _this.socket.emit('keyPress', {
+            position: 'up',
+            state: false,
+            image: '../app/images/character_up.png'
+          });
+          break;
+      }
+    };
+  });
+};
 
 exports.default = Game;
 
@@ -7468,7 +7489,9 @@ var _game = require('./game');
 
 var _game2 = _interopRequireDefault(_game);
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireDefault(obj) {
+  return obj && obj.__esModule ? obj : { default: obj };
+}
 
 new _game2.default();
 
@@ -7479,11 +7502,33 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+var _createClass = function () {
+  function defineProperties(target, props) {
+    for (var i = 0; i < props.length; i++) {
+      var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
+    }
+  }return function (Constructor, protoProps, staticProps) {
+    if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
+  };
+}();
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _classCallCheck(instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError("Cannot call a class as a function");
+  }
+}
 
 var Notification = function () {
+  /**
+   * @name Notification
+   *
+   * @description A class used for setting notifications
+   *
+   * @param {string} message the message we want to pass through
+   * @param {string} selector the element we want to append this message to
+   *
+   * @example const notification = new Notification('I am a notification', '.notification');
+   */
   function Notification(message, selector) {
     _classCallCheck(this, Notification);
 
@@ -7494,11 +7539,22 @@ var Notification = function () {
     }
   }
 
+  /**
+   * A method to show our notification
+   */
+
   _createClass(Notification, [{
     key: 'show',
     value: function show() {
       this.notification.style.visibility = 'visible';
     }
+
+    /**
+     * A method to hide our notification
+     *
+     * @param {object} data an object which gets passed through from the server which, when evalutaed to true, will hide our nofitication
+     */
+
   }, {
     key: 'hide',
     value: function hide(data) {
@@ -7524,16 +7580,36 @@ var _ambience = require('./ambience');
 
 var _ambience2 = _interopRequireDefault(_ambience);
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireDefault(obj) {
+  return obj && obj.__esModule ? obj : { default: obj };
+}
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _classCallCheck(instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError("Cannot call a class as a function");
+  }
+}
 
-var Settings = function Settings() {
+var Settings =
+/**
+ * @name Settings
+ *
+ * @description A class used to initialise our game with predefined settings
+ *
+ * @example const settings = new Settings();
+ */
+function Settings() {
   var _this = this;
 
   _classCallCheck(this, Settings);
 
-  // Define Canvas Elements
+  // Setup Local Variables
+  this.connection = 'https://shroom-boy.herokuapp.com/';
+  this.notification;
+  this.timer;
+  this.name;
+
+  // Setup Canvas Elements
   this.canvas = document.querySelector('canvas');
   this.width = this.canvas.width = window.innerWidth;
   this.height = this.canvas.height = window.innerHeight;
@@ -7576,17 +7652,42 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+var _createClass = function () {
+  function defineProperties(target, props) {
+    for (var i = 0; i < props.length; i++) {
+      var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
+    }
+  }return function (Constructor, protoProps, staticProps) {
+    if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
+  };
+}();
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _classCallCheck(instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError("Cannot call a class as a function");
+  }
+}
 
 var Timer = function () {
+  /**
+   * @name Timer
+   *
+   * @description A class used for setting a timer in our scene
+   *
+   * @param {number} count the number of seconds we pass in from the server
+   *
+   * @example const timer = new Timer(60);
+   */
   function Timer(count) {
     _classCallCheck(this, Timer);
 
     this.timer = document.querySelector('.stats p');
     this.count = count;
   }
+
+  /**
+   * A method to start our timer
+   */
 
   _createClass(Timer, [{
     key: 'start',

@@ -7272,7 +7272,9 @@ var Ambience = function () {
    * @description A class used for creating an ambience in our scenes
    *
    * @param {string} src the source of our audio stream
+   *
    * @param {boolean} loop defines whether the audio stream should loop or not
+   *
    * @example const ambience = new Ambience('./src/to/file.mp3', true);
    */
   function Ambience(src, loop) {
@@ -7535,6 +7537,7 @@ var Notification = function () {
    * @description A class used for setting notifications
    *
    * @param {string} message the message we want to pass through
+   *
    * @param {string} selector the element we want to append this message to
    *
    * @example const notification = new Notification('I am a notification', '.notification');

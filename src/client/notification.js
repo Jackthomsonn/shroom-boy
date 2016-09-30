@@ -6,6 +6,7 @@ export default class Notification {
   * @description A class used for setting notifications
   *
   * @param {string} message the message we want to pass through
+  *
   * @param {string} selector the element we want to append this message to
   *
   * @example const notification = new Notification('I am a notification', '.notification');

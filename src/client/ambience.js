@@ -6,7 +6,9 @@ export default class Ambience {
   * @description A class used for creating an ambience in our scenes
   *
   * @param {string} src the source of our audio stream
+  *
   * @param {boolean} loop defines whether the audio stream should loop or not
+  *
   * @example const ambience = new Ambience('./src/to/file.mp3', true);
   */
   constructor(src, loop) {

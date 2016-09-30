@@ -25,38 +25,45 @@ export default class Game {
       this.socket.emit('addPlayer', {
         name: name
       });
+
       this.socket.on('justJoined', (data) => {
         this.settings.notification = new Notification(data.name + ' just joined', '.notification');
         this.settings.notification.show();
-        this.socket.on('timeout', (data) => {
-          this.settings.notification.hide(data.timeout);
-        });
+        setTimeout( () => {
+          this.settings.notification.hide();
+        },2000);
       });
+
       this.socket.on('justLeft', (data) => {
         this.settings.notification = new Notification(data.name + ' just left', '.notification');
         this.settings.notification.show();
-        this.socket.on('timeout', (data) => {
-          this.settings.notification.hide(data.timeout);
-        });
+        setTimeout( () => {
+          this.settings.notification.hide();
+        },2000);
       });
+
       this.socket.on('winner', (data) => {
         this.settings.notification = new Notification(data.winner + ' was victorious', '.notification');
         this.settings.notification.show();
-        this.socket.on('newGame', (data) => {
-          this.settings.notification.hide(data.newGame);
-        });
+        setTimeout( () => {
+          this.settings.notification.hide();
+        },2000);
       });
+
       this.socket.on('error', () => {
         this.socket = (this.socket, {
           'force new connection': true
         });
       });
+
       this.socket.on('playerCount', (data) => {
         data.online > 1 ? this.settings.ctx.fillText(data.online + ' players online', 20, 50) : this.settings.ctx.fillText(data.online + ' player online', 20, 50);
       });
+
       this.socket.on('mushroomPosition', (data) => {
         this.settings.mushroom = data;
       });
+
       this.socket.on('newPositions', (data) => {
         this.settings.ctx.clearRect(0, 0, this.settings.width, this.settings.height);
         this.settings.ctx.drawImage(this.settings.map, 0, 0, this.settings.width, this.settings.height);
@@ -67,6 +74,7 @@ export default class Game {
             this.settings.ctx.drawImage(this.settings.player, data[i].x, data[i].y, data[i].width, data[i].height);
           }
         }
+
         this.socket.on('mushroomCaught', (data) => {
           if(data.caught) {
             this.settings.collected.play();
@@ -77,10 +85,12 @@ export default class Game {
         });
         this.settings.ctx.drawImage(this.settings.mushroomImage, this.settings.mushroom.x, this.settings.mushroom.y, this.settings.mushroom.width, this.settings.mushroom.height);
       });
+
       this.socket.on('timer', (data) => {
         this.settings.timer = new Timer(data.timer);
         this.settings.timer.start();
       });
+
       document.onkeydown = (event) => {
         switch(event.keyCode) {
         case 68 :

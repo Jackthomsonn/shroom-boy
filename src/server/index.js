@@ -77,11 +77,6 @@ io.sockets.on('connection', (socket) => {
               socket.broadcast.emit('justJoined', {
                 name: data.name
               });
-              setTimeout(function() {
-                io.emit('timeout', {
-                  timeout: true
-                });
-              },2000);
               console.log(data.name + ' just joined the game');
               console.log('Online players: ' + online);
               player.name = buffer[i].name;
@@ -99,11 +94,6 @@ io.sockets.on('connection', (socket) => {
       socket.broadcast.emit('justJoined', {
         name: data.name
       });
-      setTimeout(function() {
-        io.emit('timeout', {
-          timeout: true
-        });
-      },2000);
       console.log(data.name + ' just joined the game');
       console.log('Online players: ' + online);
       player = new Player(_id);
@@ -128,11 +118,6 @@ io.sockets.on('connection', (socket) => {
       socket.broadcast.emit('justLeft', {
         name: players[_id].name
       });
-      setTimeout(function() {
-        io.emit('timeout', {
-          timeout: true
-        });
-      },2000);
       console.log(players[_id].name + ' just left the game');
       console.log('Online players: ' + online);
       delete sockets[_id];
@@ -168,7 +153,7 @@ io.sockets.on('connection', (socket) => {
 });
 
 const buffer = setInterval(checkWinner, 1000);
-const loop = setInterval(gameLoop, 1000/40);
+const loop = setInterval(gameLoop, 1000/60);
 
 function checkWinner() {
   --timer;
@@ -211,11 +196,6 @@ function checkWinner() {
     io.emit('winner', {
       winner: winner
     });
-    setTimeout(function() {
-      io.emit('newGame', {
-        newGame: true
-      });
-    },4000);
   }
 }
 function gameLoop() {

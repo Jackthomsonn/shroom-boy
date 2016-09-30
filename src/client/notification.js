@@ -27,12 +27,8 @@ export default class Notification {
 
  /**
   * A method to hide our notification
-  *
-  * @param {object} data an object which gets passed through from the server which, when evalutaed to true, will hide our nofitication
   */
-  hide(data) {
-    if(data) {
-      this.notification.style.visibility = 'hidden';
-    }
+  hide() {
+    this.notification.style.visibility = 'hidden';
   }
 }

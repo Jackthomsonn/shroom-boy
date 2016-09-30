@@ -7357,38 +7357,45 @@ function Game() {
     _this.socket.emit('addPlayer', {
       name: name
     });
+
     _this.socket.on('justJoined', function (data) {
       _this.settings.notification = new _notification2.default(data.name + ' just joined', '.notification');
       _this.settings.notification.show();
-      _this.socket.on('timeout', function (data) {
-        _this.settings.notification.hide(data.timeout);
-      });
+      setTimeout(function () {
+        _this.settings.notification.hide();
+      }, 2000);
     });
+
     _this.socket.on('justLeft', function (data) {
       _this.settings.notification = new _notification2.default(data.name + ' just left', '.notification');
       _this.settings.notification.show();
-      _this.socket.on('timeout', function (data) {
-        _this.settings.notification.hide(data.timeout);
-      });
+      setTimeout(function () {
+        _this.settings.notification.hide();
+      }, 2000);
     });
+
     _this.socket.on('winner', function (data) {
       _this.settings.notification = new _notification2.default(data.winner + ' was victorious', '.notification');
       _this.settings.notification.show();
-      _this.socket.on('newGame', function (data) {
-        _this.settings.notification.hide(data.newGame);
-      });
+      setTimeout(function () {
+        _this.settings.notification.hide();
+      }, 2000);
     });
+
     _this.socket.on('error', function () {
       _this.socket = (_this.socket, {
         'force new connection': true
       });
     });
+
     _this.socket.on('playerCount', function (data) {
       data.online > 1 ? _this.settings.ctx.fillText(data.online + ' players online', 20, 50) : _this.settings.ctx.fillText(data.online + ' player online', 20, 50);
     });
+
     _this.socket.on('mushroomPosition', function (data) {
       _this.settings.mushroom = data;
     });
+
     _this.socket.on('newPositions', function (data) {
       _this.settings.ctx.clearRect(0, 0, _this.settings.width, _this.settings.height);
       _this.settings.ctx.drawImage(_this.settings.map, 0, 0, _this.settings.width, _this.settings.height);
@@ -7399,6 +7406,7 @@ function Game() {
           _this.settings.ctx.drawImage(_this.settings.player, data[i].x, data[i].y, data[i].width, data[i].height);
         }
       }
+
       _this.socket.on('mushroomCaught', function (data) {
         if (data.caught) {
           _this.settings.collected.play();
@@ -7409,10 +7417,12 @@ function Game() {
       });
       _this.settings.ctx.drawImage(_this.settings.mushroomImage, _this.settings.mushroom.x, _this.settings.mushroom.y, _this.settings.mushroom.width, _this.settings.mushroom.height);
     });
+
     _this.socket.on('timer', function (data) {
       _this.settings.timer = new _timer2.default(data.timer);
       _this.settings.timer.start();
     });
+
     document.onkeydown = function (event) {
       switch (event.keyCode) {
         case 68:
@@ -7551,16 +7561,12 @@ var Notification = function () {
 
     /**
      * A method to hide our notification
-     *
-     * @param {object} data an object which gets passed through from the server which, when evalutaed to true, will hide our nofitication
      */
 
   }, {
     key: 'hide',
-    value: function hide(data) {
-      if (data) {
-        this.notification.style.visibility = 'hidden';
-      }
+    value: function hide() {
+      this.notification.style.visibility = 'hidden';
     }
   }]);
 
